@@ -182,6 +182,11 @@ _Bool *shouldStopBg = false;
         [self bindWeChat];
         weChatBind = false;
     }
+    
+    if([self isJailBreak2] || [self isJailBreak1]){
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"提示" message:@"不能使用越狱手机" delegate:nil cancelButtonTitle:nil otherButtonTitles:nil];
+        [alert show];
+    }
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
@@ -383,6 +388,36 @@ _Bool *shouldStopBg = false;
     NSString *title = [[NSString alloc] initWithData:message.title encoding:NSUTF8StringEncoding];
     NSString *body = [[NSString alloc] initWithData:message.body encoding:NSUTF8StringEncoding];
     NSLog(@"Receive message title: %@, content: %@.", title, body);
+}
+
+- (BOOL)isJailBreak1 {
+    NSArray *jailbreak_tool_paths = @[
+                                      @"/Applications/Cydia.app",
+                                      @"/Library/MobileSubstrate/MobileSubstrate.dylib",
+                                      @"/bin/bash",
+                                      @"/usr/sbin/sshd",
+                                      @"/etc/apt"
+                                      ];
+    
+    for (int i=0; i<jailbreak_tool_paths.count; i++) {
+        if ([[NSFileManager defaultManager] fileExistsAtPath:jailbreak_tool_paths[i]]) {
+            NSLog(@"The device is jail broken!");
+            return YES;
+        }
+    }
+    NSLog(@"The device is NOT jail broken!");
+    return NO;
+}
+
+- (BOOL)isJailBreak2 {
+    if ([[NSFileManager defaultManager] fileExistsAtPath:@"User/Applications/"]) {
+        NSLog(@"The device is jail broken!");
+        NSArray *appList = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:@"User/Applications/" error:nil];
+        NSLog(@"appList = %@", appList);
+        return YES;
+    }
+    NSLog(@"The device is NOT jail broken!");
+    return NO;
 }
 
 //通知打开监听
